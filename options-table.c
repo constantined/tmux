@@ -416,6 +416,13 @@ const struct options_table_entry session_options_table[] = {
 	  .default_num = 0 /* overridden in main() */
 	},
 
+	{ .name = "status-window-length",
+	  .type = OPTIONS_TABLE_NUMBER,
+	  .minimum = 0,
+	  .maximum = SHRT_MAX,
+	  .default_num = 0
+	},
+
 	{ .name = "terminal-overrides",
 	  .type = OPTIONS_TABLE_STRING,
 	  .default_str = "*256col*:colors=256"

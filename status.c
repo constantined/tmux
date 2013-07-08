@@ -162,7 +162,7 @@ status_redraw(struct client *c)
 	char		       *left, *right, *sep;
 	u_int			offset, needed;
 	u_int			wlstart, wlwidth, wlavailable, wloffset, wlsize;
-	size_t			llen, rlen, seplen;
+	size_t			llen, rlen, seplen, wlen;
 	int			larrow, rarrow, utf8flag;
 
 	/* No status line? */
@@ -216,6 +216,9 @@ status_redraw(struct client *c)
 		goto out;
 	wlavailable = c->tty.sx - needed;
 
+	/* Get window link length */
+	wlen = options_get_number(&s->options, "status-window-length");
+
 	/* Calculate the total size needed for the window list. */
 	wlstart = wloffset = wlwidth = 0;
 	RB_FOREACH(wl, winlinks, &s->windows) {
@@ -224,6 +227,8 @@ status_redraw(struct client *c)
 		wl->status_text = status_print(c, wl, t, &wl->status_cell);
 		wl->status_width =
 		    screen_write_cstrlen(utf8flag, "%s", wl->status_text);
+		if (wlen != 0 && wlen < wl->status_width)
+			wl->status_width = wlen;
 
 		if (wl == s->curw)
 			wloffset = wlwidth;
@@ -240,8 +245,12 @@ status_redraw(struct client *c)
 	/* And draw the window list into it. */
 	screen_write_start(&ctx, NULL, &window_list);
 	RB_FOREACH(wl, winlinks, &s->windows) {
-		screen_write_cnputs(&ctx,
-		    -1, &wl->status_cell, utf8flag, "%s", wl->status_text);
+		if (wlen != 0)
+			screen_write_cnputs(&ctx,
+			    wlen, &wl->status_cell, utf8flag, "%s", wl->status_text);
+		else
+			screen_write_cnputs(&ctx,
+			    -1, &wl->status_cell, utf8flag, "%s", wl->status_text);
 
 		oo = &wl->window->options;
 		sep = options_get_string(oo, "window-status-separator");
