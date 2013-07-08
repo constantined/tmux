@@ -338,9 +338,15 @@ screen_check_selection(struct screen *s, u_int px, u_int py)
 			if (py > sel->sy || py < sel->ey)
 				return (0);
 
-			if ((py == sel->sy && px >= sel->sx)
-			    || (py == sel->ey && px < sel->ex))
-				return (0);
+			if (sel->keys == MODEKEY_EMACS) {
+				if ((py == sel->sy && px >= sel->sx)
+				    || (py == sel->ey && px < sel->ex))
+					return (0);
+			} else {
+				if ((py == sel->sy && px > sel->sx)
+				    || (py == sel->ey && px < sel->ex))
+					return (0);
+			}
 		} else {
 			/* starting line == ending line. */
 			if (py != sel->sy)

@@ -1216,6 +1216,7 @@ window_copy_start_selection(struct window_pane *wp)
 	data->sely = screen_hsize(data->backing) + data->cy - data->oy;
 
 	s->sel.flag = 1;
+	s->sel.keys = options_get_number(&wp->window->options, "mode-keys");
 	window_copy_update_selection(wp);
 }
 
@@ -1280,7 +1281,6 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	size_t				 off;
 	u_int				 i, xx, yy, sx, sy, ex, ey;
 	u_int				 firstsx, lastex, restex, restsx;
-	int				 keys;
 
 	if (!s->sel.flag)
 		return (NULL);
@@ -1324,7 +1324,6 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	 * bottom-right-most, regardless of copy direction. If it is vi, also
 	 * keep bottom-right-most character.
 	 */
-	keys = options_get_number(&wp->window->options, "mode-keys");
 	if (data->rectflag) {
 		/*
 		 * Need to ignore the column with the cursor in it, which for
@@ -1332,7 +1331,7 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 		 */
 		if (data->selx < data->cx) {
 			/* Selection start is on the left. */
-			if (keys == MODEKEY_EMACS) {
+			if (s->sel.keys == MODEKEY_EMACS) {
 				lastex = data->cx;
 				restex = data->cx;
 			}
@@ -1350,7 +1349,7 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 			restsx = data->cx;
 		}
 	} else {
-		if (keys == MODEKEY_EMACS)
+		if (s->sel.keys == MODEKEY_EMACS)
 			lastex = ex;
 		else
 			lastex = ex + 1;
