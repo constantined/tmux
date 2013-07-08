@@ -329,7 +329,10 @@ draw:
 
 	/* Draw the right string and arrow. */
 	if (rarrow != 0) {
-		screen_write_cursormove(&ctx, c->tty.sx - rlen - 2, 0);
+		if (rlen != 0)
+			screen_write_cursormove(&ctx, c->tty.sx - rlen - 2, 0);
+		else
+			screen_write_cursormove(&ctx, c->tty.sx - 1, 0);
 		memcpy(&gc, &stdgc, sizeof gc);
 		if (rarrow == -1)
 			gc.attr ^= GRID_ATTR_REVERSE;
